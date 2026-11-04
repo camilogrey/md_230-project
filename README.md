@@ -1,5 +1,14 @@
 # Proyecto Final MB-230: Implementación de Dynamics 365 Customer Service
 
+[![Microsoft Dynamics 365 Customer Service](https://img.shields.io/badge/Microsoft_Dynamics_365_Customer_Service-002050?logo=dynamics365&logoColor=white)](https://dynamics.microsoft.com/customer-service/)
+[![Microsoft Power Platform](https://img.shields.io/badge/Microsoft_Power_Platform-742774?logo=powerplatform&logoColor=white)](https://powerplatform.microsoft.com/)
+[![Power Apps](https://img.shields.io/badge/Power_Apps-742774?logo=powerapps&logoColor=white)](https://make.powerapps.com/)
+[![Power Automate](https://img.shields.io/badge/Power_Automate-0066FF?logo=powerautomate&logoColor=white)](https://make.powerautomate.com/)
+[![Microsoft Entra ID](https://img.shields.io/badge/Microsoft_Entra_ID-0078D4?logo=microsoft&logoColor=white)](https://entra.microsoft.com/)
+[![Microsoft 365 Admin Center](https://img.shields.io/badge/Microsoft_365_Admin_Center-D83B01?logo=microsoft&logoColor=white)](https://admin.microsoft.com/)
+[![Dynamics 365 Customer Voice](https://img.shields.io/badge/Dynamics_365_Customer_Voice-00A2ED?logo=dynamics365&logoColor=white)](https://dynamics.microsoft.com/customer-voice/)
+[![Microsoft Dataverse](https://img.shields.io/badge/Microsoft_Dataverse-0078D4?logo=microsoft&logoColor=white)](https://powerplatform.microsoft.com/dataverse/)
+
 ## 📋 Descripción General
 
 Este repositorio contiene la documentación y guía de implementación completa para el proyecto final de la certificación **Microsoft Dynamics 365 Customer Service (MB-230)** . El proyecto está diseñado como una implementación práctica y real de un sistema de gestión de servicio al cliente, cubriendo desde la configuración inicial hasta la medición de satisfacción del cliente.
@@ -135,3 +144,9 @@ El enfoque es **técnico, práctico y directo**, garantizando tanto el éxito en
 
 ```bash
 git clone https://github.com/tu-usuario/mb230-customer-service-project.git
+
+
+## 👤 Autor
+**Camilo García Rey**  
+- LinkedIn: https://www.linkedin.com/in/camilo-garcia-rey/  
+- GitHub Portfolio: github.com/camilogrey 
