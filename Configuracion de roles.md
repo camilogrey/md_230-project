@@ -1,53 +1,91 @@
-# Laboratorio: Configuración de Roles, Equipos y Unidades de Negocio en Power Platform Admin Center
+# Proyecto Piloto: CG_SupportHub — Fase 1: Configuración Inicial (Seguridad y Datos Maestros)
 
-En este laboratorio, realicé la configuración de usuarios, la asignación de roles de seguridad, la revisión de equipos y la estructura de unidades de negocio dentro del entorno `3618-GameOfCodes` en el centro de administración de Power Platform.
+## 📌 Metadatos del Entorno y Proyecto
+- **Entorno:** `3618-gameofcodes.crm4.dynamics.com`
+- **Environment ID:** `8a0ffac2-dba7-eea5-afca-3f1f46b9661d`
+- **Solución Principal:** `CG_SupportHub`
+- **Prefijo del Editor (Publisher):** `cg_`
+- **Empresa:** CG_TechSolutions (Soporte B2B de Hardware y Software)
 
-## 1. Acceso a la configuración del entorno
+---
 
-**1.1.** Ingresé al centro de administración de Power Platform y en el menú lateral izquierdo seleccioné la opción **Administrar** y luego **Entornos**.
+## 1. Fundamento Arquitectónico y Modelo Relacional B2B
 
-**1.2.** Seleccioné el entorno específico denominado `3618-GameOfCodes`.
+Para el modelo de soporte corporativo (*B2B*), se definió la separación clara de responsabilidades entre entidades maestras:
 
-**1.3.** Una vez dentro del entorno, hice clic en la pestaña **Configuración** en el menú superior.
 
-![Acceso a configuración del entorno](roles/21.%20Configuracion%20PP%20admin.png)
+```mermaid
+erDiagram
+    ACCOUNT ||--o{ CONTACT : "1:N"
+    ACCOUNT ||--o{ INCIDENT : "Customer (Lookup) - hereda SLA/Contrato"
+    CONTACT ||--o{ INCIDENT : "Contact (Lookup) - correos y encuestas"
 
-## 2. Gestión de usuarios y asignación de roles
+    ACCOUNT {
+        string nombre "Empresa Cliente"
+    }
+    CONTACT {
+        string nombre "Persona Solicitante"
+    }
+    INCIDENT {
+        string tipo "Incidencia Técnica"
+    }
 
-**2.1.** Dentro de la sección de Configuración, navegué por el menú de la izquierda hasta **Usuarios y permisos** y seleccioné **Usuarios**.
+```
+    - **Cuenta (`Account`):** Representa a la empresa contratante. Contiene las condiciones contractuales del servicio (Segmento y Nivel de SLA).
+- **Contacto (`Contact`):** Representa al empleado corporativo que reporta la incidencia y recibe la comunicación operativa.
+- **Caso (`Incident`):** Registro transaccional donde convergen el cliente contractual y el solicitante.
 
-![Menú de usuarios y permisos](roles/22.%20Usuarios%20y%20permisos.png)
+---
 
-**2.2.** En la lista de usuarios del entorno, localicé y seleccioné al usuario **Camilo Andrés García Rey**.
+## 2. Componentes y Personalizaciones de Datos Maestros
 
-![Lista de usuarios del entorno](roles/23.%20usuario.png)
+### Tablas incorporadas a la solución `CG_SupportHub`
+- `Account` (Cuenta)
+- `Contact` (Contacto)
 
-**2.3.** Se abrió un panel lateral con los detalles del usuario. En la sección de **Roles asignados directamente**, hice clic en el enlace **Administrar roles**.
+![Texto alternativo](licencia/5.%20entramos%20al%20centro%20de%20admin%20de%20power%20pltaform%20para%20verificar%20la%20conexion%20del%20buzonmailbox.png)
 
-![Detalles del usuario](roles/24.%20Admin%20Roles.png)
 
-**2.4.** Se desplegó la ventana **Administrar roles de seguridad**, donde pude visualizar la lista completa de roles disponibles para la unidad de negocio `3618-gameofcodes`. Desde aquí se pueden marcar o desmarcar los roles que se le asignarán al usuario.
+### Columnas y Atributos de Clasificación
+Para la clasificación de clientes en la tabla `Account`, se establecieron las siguientes opciones de negocio:
 
-![Administrar roles de seguridad](roles/25.%20roles%20disponibles.png)
+| Concepto de Negocio | Nombre Lógico / Esquema | Tipo | Valores / Opciones |
+| :--- | :--- | :--- | :--- |
+| **Segmento de Cliente** | `cg_segmentocliente` *(o `businesstypecode`)* | Choice (Opción) | • Enterprise<br>• SMB (Pequeña y Mediana Empresa) |
+| **Nivel de Soporte Contratado** | `cg_nivelsoporte` *(o `customertypecode`)* | Choice (Opción) | • Oro<br>• Plata<br>• Bronce |
 
-## 3. Revisión de equipos
+> **Nota Técnica de Implementación:**  
+> En este entorno de laboratorio, se parametrizaron las opciones directamente sobre los campos estándar correspondientes (`businesstypecode` y `customertypecode`), manteniendo compatibilidad funcional para la posterior lectura en SLAs y Power Automate.
 
-**3.1.** De vuelta en el menú de **Usuarios y permisos**, seleccioné la opción **Equipos**.
+---
 
-![Menú de equipos y unidades de negocio](roles/26.%20config%20equipos%20y%20unidades%20de%20negocio.png)
+## 3. Modelo de Seguridad y Roles
 
-**3.2.** En la lista de equipos disponibles, localicé y seleccioné el equipo llamado **CG Equipo propio**.
+Para garantizar el principio de mínimo privilegio y evitar la pérdida de dependencias nativas del servicio de Customer Service, se crearon roles por clonación en lugar de construcción desde cero:
 
-![Lista de equipos](roles/27.%20creacion%20de%20equipo%20propio.png)
+| Nuevo Rol de Seguridad | Rol Base de Clonación | Ámbito de Privilegio Sugerido | Propósito Operativo |
+| :--- | :--- | :--- | :--- |
+| **`CG_AgenteN1`** | Customer Service Representative | Usuario / Unidad de Negocio | Triaje inicial, recepción y resolución de incidencias estándar. |
+| **`CG_AgenteN2`** | Customer Service Representative | Unidad de Negocio / Parent BU | Atención de casos escalados, complejidad técnica y reasignación. |
+| **`CG_Supervisor`** | Customer Service Manager | Organización / Parent-Child BU | Supervisión general de colas, aprobación, gestión de SLAs y KPIs. |
 
-**3.3.** Se abrió la vista de detalles del equipo, donde pude verificar su información general, incluyendo la unidad de negocio a la que pertenece (`3618-gameofcodes`), el administrador (Equipo Gameof Codes), el tipo de equipo (Propietario) y la sección de miembros del equipo (Team members), la cual se encontraba vacía en ese momento.
+---
 
-![Detalles del equipo](roles/28.%20config%20de%20equipo.png)
+## 4. Diagnóstico de Gobernanza y Permisos en Maker Portal
 
-## 4. Revisión de unidades de negocio
+Durante el despliegue en el sandbox compartido, se documentó la resolución de alertas de permisos en el Maker Portal (`make.powerapps.com`):
 
-**4.1.** Finalmente, en el menú de **Usuarios y permisos**, hice clic en **Unidades de negocio**.
+- **Síntoma:** Banner de advertencia *"Uno o más comandos no están disponibles debido a sus privilegios actuales para este entorno"*.
+- **Causas y Mitigaciones:**
+  1. **Rol Environment Maker:** Todo usuario administrador que diseñe en `make.powerapps.com` requiere además los roles de Dataverse `Environment Maker` (Creador de entorno) y `Basic User` (Usuario básico).
+  2. **Licenciamiento M365:** El usuario debe contar con un plan de servicio o licencia de Power Apps / Dynamics 365 activo en el Microsoft 365 Admin Center para salir del modo de sólo lectura en el diseñador.
+  3. **Contexto de Solución:** Las personalizaciones deben ejecutarse dentro de la solución `CG_SupportHub` para evitar restricciones de edición fuera del ámbito del publisher.
 
-**4.2.** Se desplegó la lista de unidades de negocio activas, donde pude observar la jerarquía y estructura de la organización. La unidad principal es `3618-gameofcodes`, de la cual dependen otras unidades como `Externos`, `FP`, `Masters` y `Tajamar`.
+---
 
-![Lista de unidades de negocio](roles/29.%20Creacion%20de%20unidades%20de%20negocio.png)
+## 5. Estado de la Fase y Siguiente Hito
+
+- [x] Solución `CG_SupportHub` creada y vinculada al entorno.
+- [x] Estructura de Cuenta y Contacto definida con campos de Segmento y Nivel de Soporte.
+- [x] Definición y clonación de roles de seguridad (`CG_AgenteN1`, `CG_AgenteN2`, `CG_Supervisor`).
+- [ ] **Próximo Paso — Fase 2:** Configuración de Colas (`CG_ColaN1`, `CG_ColaN2`), canal Email-to-Case y ciclo de vida del Caso (`Incident`).
